@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"unicode/utf8"
 )
 
 type songMeta struct {
@@ -86,10 +87,10 @@ func (sm *songMeta) getSongMeta(r *http.Request) error {
 	}
 	sm.title = track.Name
 	sm.albumName = track.Album.Name
-	if len(sm.artists) > 2 {
+	sm.artists = track.Artists
+	if len(sm.artists) > 1 {
 		sm.isArtistsGroup = true
 	}
-	sm.artists = track.Artists
 	return nil
 }
 
@@ -97,14 +98,14 @@ func (sm songMeta) concreteArtists(maxLength int) (string, int) {
 	artistsNames := ""
 	maxArtists := 0
 	for i, v := range sm.artists {
-		if len(artistsNames+v.Name+", ") > maxLength-1 {
+		if utf8.RuneCountInString(artistsNames+v.Name+", ") > maxLength-1 {
 			if maxArtists == 0 {
 				log.Fatal(fmt.Sprintf("failed to concrete artists names : %s", sm.artists))
 			}
 			break
 		}
 		artistsNames = artistsNames + v.Name + ", "
-		maxArtists = i
+		maxArtists = i + 1
 	}
 	if maxArtists > 1 {
 		return strings.TrimSuffix(artistsNames, ", "), maxArtists
@@ -118,7 +119,7 @@ func (sm *songMeta) makeTweetString(t *tweet) {
 	if sm.title == "" || sm.albumName == "" {
 		log.Fatalf("meta data is not corrected")
 	}
-	maxLength := stringMaxLength - len(fmt.Sprintf("おすすめの曲… %s by ", sm.title))
+	maxLength := stringMaxLength - utf8.RuneCountInString(fmt.Sprintf("おすすめの曲… %s by ", sm.title))
 	artistsName := ""
 	if sm.isArtistsGroup {
 		artistsName, _ = sm.concreteArtists(maxLength)
