@@ -19,6 +19,7 @@ type songMeta struct {
 	albumName      string
 	artists        []spotify.SimpleArtist
 	isArtistsGroup bool
+	isLink         bool
 	id             spotify.ID
 }
 type tweet struct {
@@ -49,10 +50,14 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	err := sm.getSongMeta(r)
 	if err != nil {
 		//w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "404")
+		fmt.Fprintf(w, "%d", http.StatusBadRequest)
 	} else {
 		sm.makeTweetString(&t)
-		_, err = fmt.Fprintf(w, "%s", t.makeTweetIntent())
+		if sm.isLink {
+			_, err = fmt.Fprintf(w, "<a href=\"%s\">%s</a>", t.makeTweetIntent(), t.makeTweetIntent())
+		} else {
+			_, err = fmt.Fprintf(w, "%s", t.makeTweetIntent())
+		}
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -61,6 +66,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 func (sm *songMeta) parseRequestUri(r *http.Request) {
 	userUrl := r.URL.Query().Get("url")
+	sm.isLink = r.URL.Query().Get("link") == "true"
 	u, err := url.Parse(userUrl)
 	if err != nil {
 		log.Fatal(err)
