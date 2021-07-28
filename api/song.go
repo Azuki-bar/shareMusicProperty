@@ -29,6 +29,9 @@ type tweet struct {
 	urlLength   int
 }
 
+func getHtmlHeader() string {
+	return "<!DOCTYPE html>\n<html lang=\"jp\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>Azukibar Song API</title>\n</head>\n"
+}
 func (t *tweet) concreteStrUrl() string {
 	return t.textContent + t.url.String()
 }
@@ -52,6 +55,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		//w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "%d", http.StatusBadRequest)
 	} else {
+		fmt.Fprintf(w, getHtmlHeader())
 		sm.makeTweetString(&t)
 		if sm.isLink {
 			_, err = fmt.Fprintf(w, "<a href=\"%s\">%s</a>", t.makeTweetIntent(), t.textContent)
@@ -61,6 +65,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal(err)
 		}
+		fmt.Fprintf(w, "</html>")
 	}
 }
 
