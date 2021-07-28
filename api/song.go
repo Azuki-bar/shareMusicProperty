@@ -54,7 +54,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		sm.makeTweetString(&t)
 		if sm.isLink {
-			_, err = fmt.Fprintf(w, "<a href=\"%s\">%s</a>", t.makeTweetIntent(), t.makeTweetIntent())
+			_, err = fmt.Fprintf(w, "<a href=\"%s\">%s</a>", t.makeTweetIntent(), t.textContent)
 		} else {
 			_, err = fmt.Fprintf(w, "%s", t.makeTweetIntent())
 		}
@@ -133,7 +133,6 @@ func (sm *songMeta) makeTweetString(t *tweet) {
 		artistsName = sm.artists[0].Name
 	}
 	content := "おすすめの曲… " + sm.title + " by " + artistsName + " "
-	t.textContent = url.PathEscape(content)
 	t.textContent = content
 	t.url = sm.url
 }
