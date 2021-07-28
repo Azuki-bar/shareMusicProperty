@@ -19,6 +19,7 @@ type songMeta struct {
 	albumName      string
 	artists        []spotify.SimpleArtist
 	isArtistsGroup bool
+	isLink         bool
 	id             spotify.ID
 }
 type tweet struct {
@@ -28,6 +29,9 @@ type tweet struct {
 	urlLength   int
 }
 
+func getHtmlHeader() string {
+	return "<!DOCTYPE html>\n<html lang=\"jp\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>Azukibar Song API</title>\n</head>\n"
+}
 func (t *tweet) concreteStrUrl() string {
 	return t.textContent + t.url.String()
 }
@@ -49,18 +53,25 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	err := sm.getSongMeta(r)
 	if err != nil {
 		//w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "404")
+		fmt.Fprintf(w, "%d", http.StatusBadRequest)
 	} else {
+		fmt.Fprintf(w, getHtmlHeader())
 		sm.makeTweetString(&t)
-		_, err = fmt.Fprintf(w, "%s", t.makeTweetIntent())
+		if sm.isLink {
+			_, err = fmt.Fprintf(w, "<a href=\"%s\">%s</a>", t.makeTweetIntent(), t.textContent)
+		} else {
+			_, err = fmt.Fprintf(w, "%s", t.makeTweetIntent())
+		}
 		if err != nil {
 			log.Fatal(err)
 		}
+		fmt.Fprintf(w, "</html>")
 	}
 }
 
 func (sm *songMeta) parseRequestUri(r *http.Request) {
 	userUrl := r.URL.Query().Get("url")
+	sm.isLink = r.URL.Query().Get("link") == "true"
 	u, err := url.Parse(userUrl)
 	if err != nil {
 		log.Fatal(err)
@@ -127,7 +138,6 @@ func (sm *songMeta) makeTweetString(t *tweet) {
 		artistsName = sm.artists[0].Name
 	}
 	content := "おすすめの曲… " + sm.title + " by " + artistsName + " "
-	t.textContent = url.PathEscape(content)
 	t.textContent = content
 	t.url = sm.url
 }
