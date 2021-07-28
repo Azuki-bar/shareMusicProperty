@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2/clientcredentials"
+	"html/template"
 	"log"
 	"net/http"
 	"net/url"
@@ -29,8 +30,17 @@ type tweet struct {
 	urlLength   int
 }
 
-func getHtmlHeader() string {
-	return "<!DOCTYPE html>\n<html lang=\"jp\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>Azukibar Song API</title>\n</head>\n"
+func getHtmlTemplate() string {
+	text := `<!DOCTYPE html>
+<html lang="jp">
+<head>
+<meta charset="UTF-8">
+<title>Azukibar Song API</title>
+</head>
+<a href="{{ .Url }}">{{ .Context }}</a> 
+</html>
+`
+	return text
 }
 func (t *tweet) concreteStrUrl() string {
 	return t.textContent + t.url.String()
@@ -55,17 +65,30 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		//w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "%d", http.StatusBadRequest)
 	} else {
-		fmt.Fprintf(w, getHtmlHeader())
 		sm.makeTweetString(&t)
 		if sm.isLink {
-			_, err = fmt.Fprintf(w, "<a href=\"%s\">%s</a>", t.makeTweetIntent(), t.textContent)
+			hyperLinkElems := struct {
+				Url     string
+				Context string
+			}{
+				Url:     sm.url.String(),
+				Context: t.textContent,
+			}
+			tpl, err := template.New("").Parse(getHtmlTemplate())
+			if err != nil {
+				log.Fatal(err)
+			}
+			err = tpl.Execute(w, hyperLinkElems)
+			if err != nil {
+				log.Fatal(err)
+			}
+
 		} else {
 			_, err = fmt.Fprintf(w, "%s", t.makeTweetIntent())
 		}
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Fprintf(w, "</html>")
 	}
 }
 
