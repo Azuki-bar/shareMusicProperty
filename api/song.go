@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2/clientcredentials"
@@ -21,6 +22,7 @@ type songMeta struct {
 	artists        []spotify.SimpleArtist
 	isArtistsGroup bool
 	isLink         bool
+	isJson         bool
 	id             spotify.ID
 }
 type tweet struct {
@@ -28,6 +30,23 @@ type tweet struct {
 	url         *url.URL
 	maxLength   int
 	urlLength   int
+}
+type SongMetaJson struct {
+	TextContent string   `json:"text_content"`
+	Title       string   `json:"title"`
+	AlbumName   string   `json:"album_name"`
+	ArtistsName []string `json:"artists"`
+	Url         string   `json:"url"`
+}
+
+func (smj *SongMetaJson) addStruct(t tweet, sm songMeta) {
+	smj.TextContent = t.textContent
+	smj.Url = t.url.String()
+	smj.Title = sm.title
+	smj.AlbumName = sm.albumName
+	for _, artist := range sm.artists {
+		smj.ArtistsName = append(smj.ArtistsName, artist.Name)
+	}
 }
 
 func getHtmlTemplate() string {
@@ -62,8 +81,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 	err := sm.getSongMeta(r)
 	if err != nil {
-		//w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "%d", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
 	} else {
 		sm.makeTweetString(&t)
 		if sm.isLink {
@@ -82,7 +100,17 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Fatal(err)
 			}
-
+		} else if sm.isJson {
+			smj := SongMetaJson{}
+			smj.addStruct(t, sm)
+			b, err := json.Marshal(smj)
+			if err != nil {
+				log.Fatal(err)
+			}
+			_, err = w.Write(b)
+			if err != nil {
+				log.Fatal(err)
+			}
 		} else {
 			_, err = fmt.Fprintf(w, "%s", t.makeTweetIntent())
 		}
@@ -95,11 +123,12 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 func (sm *songMeta) parseRequestUri(r *http.Request) {
 	userUrl := r.URL.Query().Get("url")
 	sm.isLink = r.URL.Query().Get("link") == "true"
+	sm.isJson = r.URL.Query().Get("isJson") == "true"
 	u, err := url.Parse(userUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// https://open.spotify.com/track/44VFbGPyQDEkYLOKUdRaRj?si=e067ad6ba13c40d5
+	// ?url=https://open.spotify.com/track/44VFbGPyQDEkYLOKUdRaRj?si=e067ad6ba13c40d5?isJson=true
 	sm.url = u
 	sm.id = spotify.ID(strings.Replace(u.Path, "/track/", "", -1))
 }
