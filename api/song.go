@@ -32,11 +32,12 @@ type tweet struct {
 	urlLength   int
 }
 type SongMetaJson struct {
-	TextContent string   `json:"text_content"`
-	Title       string   `json:"title"`
-	AlbumName   string   `json:"album_name"`
-	ArtistsName []string `json:"artists"`
-	Url         string   `json:"url"`
+	TextContent    string   `json:"text_content"`
+	Title          string   `json:"title"`
+	AlbumName      string   `json:"album_name"`
+	ArtistsName    []string `json:"artists"`
+	Url            string   `json:"url"`
+	TweetIntentUrl string   `json:"tweet_intent_url"`
 }
 
 func (smj *SongMetaJson) addStruct(t tweet, sm songMeta) {
@@ -47,6 +48,7 @@ func (smj *SongMetaJson) addStruct(t tweet, sm songMeta) {
 	for _, artist := range sm.artists {
 		smj.ArtistsName = append(smj.ArtistsName, artist.Name)
 	}
+	smj.TweetIntentUrl = t.makeTweetIntent()
 }
 
 func getHtmlTemplate() string {
