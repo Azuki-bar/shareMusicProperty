@@ -15,7 +15,7 @@ import (
 	"unicode/utf8"
 )
 
-type songMeta struct {
+type musicMeta struct {
 	url            *url.URL
 	title          string
 	albumName      string
@@ -31,7 +31,7 @@ type tweet struct {
 	maxLength   int
 	urlLength   int
 }
-type SongMetaJson struct {
+type musicMetaJson struct {
 	TextContent    string   `json:"text_content"`
 	Title          string   `json:"title"`
 	AlbumName      string   `json:"album_name"`
@@ -40,15 +40,15 @@ type SongMetaJson struct {
 	TweetIntentUrl string   `json:"tweet_intent_url"`
 }
 
-func (smj *SongMetaJson) addStruct(t tweet, sm songMeta) {
-	smj.TextContent = t.textContent
-	smj.Url = t.url.String()
-	smj.Title = sm.title
-	smj.AlbumName = sm.albumName
-	for _, artist := range sm.artists {
-		smj.ArtistsName = append(smj.ArtistsName, artist.Name)
+func (mmj *musicMetaJson) addStruct(t tweet, mm musicMeta) {
+	mmj.TextContent = t.textContent
+	mmj.Url = t.url.String()
+	mmj.Title = mm.title
+	mmj.AlbumName = mm.albumName
+	for _, artist := range mm.artists {
+		mmj.ArtistsName = append(mmj.ArtistsName, artist.Name)
 	}
-	smj.TweetIntentUrl = t.makeTweetIntent()
+	mmj.TweetIntentUrl = t.makeTweetIntent()
 }
 
 func getHtmlTemplate() string {
@@ -56,7 +56,7 @@ func getHtmlTemplate() string {
 <html lang="jp">
 <head>
 <meta charset="UTF-8">
-<title>Azukibar Song API</title>
+<title>Azukibar Spotify Music API</title>
 </head>
 <a href="{{ .Url }}">{{ .Context }}</a> 
 </html>
@@ -73,7 +73,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		maxLength:   140,
 		urlLength:   23,
 	}
-	sm := songMeta{
+	mm := musicMeta{
 		url:            nil,
 		title:          "",
 		albumName:      "",
@@ -81,17 +81,17 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		isArtistsGroup: false,
 		id:             "",
 	}
-	err := sm.getSongMeta(r)
+	err := mm.getMusicMeta(r)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	} else {
-		sm.makeTweetString(&t)
-		if sm.isLink {
+		mm.makeTweetString(&t)
+		if mm.isLink {
 			hyperLinkElems := struct {
 				Url     string
 				Context string
 			}{
-				Url:     sm.url.String(),
+				Url:     mm.url.String(),
 				Context: t.textContent,
 			}
 			tpl, err := template.New("").Parse(getHtmlTemplate())
@@ -102,10 +102,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Fatal(err)
 			}
-		} else if sm.isJson {
-			smj := SongMetaJson{}
-			smj.addStruct(t, sm)
-			b, err := json.Marshal(smj)
+		} else if mm.isJson {
+			mmj := musicMetaJson{}
+			mmj.addStruct(t, mm)
+			b, err := json.Marshal(mmj)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -122,19 +122,19 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (sm *songMeta) parseRequestUri(r *http.Request) {
+func (mm *musicMeta) parseRequestUri(r *http.Request) {
 	userUrl := r.URL.Query().Get("url")
-	sm.isLink = r.URL.Query().Get("link") == "true"
-	sm.isJson = r.URL.Query().Get("isJson") == "true"
+	mm.isLink = r.URL.Query().Get("link") == "true"
+	mm.isJson = r.URL.Query().Get("isJson") == "true"
 	u, err := url.Parse(userUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
 	// ?url=https://open.spotify.com/track/44VFbGPyQDEkYLOKUdRaRj?si=e067ad6ba13c40d5?isJson=true
-	sm.url = u
-	sm.id = spotify.ID(strings.Replace(u.Path, "/track/", "", -1))
+	mm.url = u
+	mm.id = spotify.ID(strings.Replace(u.Path, "/track/", "", -1))
 }
-func (sm *songMeta) getSongMeta(r *http.Request) error {
+func (mm *musicMeta) getMusicMeta(r *http.Request) error {
 	config := &clientcredentials.Config{
 		ClientID:     os.Getenv("SPOTIFY_ID"),
 		ClientSecret: os.Getenv("SPOTIFY_SECRET"),
@@ -145,27 +145,27 @@ func (sm *songMeta) getSongMeta(r *http.Request) error {
 		return err
 	}
 	client := spotify.Authenticator{}.NewClient(token)
-	sm.parseRequestUri(r)
-	track, err := client.GetTrack(sm.id)
+	mm.parseRequestUri(r)
+	track, err := client.GetTrack(mm.id)
 	if err != nil || track == nil {
 		return err
 	}
-	sm.title = track.Name
-	sm.albumName = track.Album.Name
-	sm.artists = track.Artists
-	if len(sm.artists) > 1 {
-		sm.isArtistsGroup = true
+	mm.title = track.Name
+	mm.albumName = track.Album.Name
+	mm.artists = track.Artists
+	if len(mm.artists) > 1 {
+		mm.isArtistsGroup = true
 	}
 	return nil
 }
 
-func (sm songMeta) concreteArtists(maxLength int) (string, int) {
+func (mm musicMeta) concreteArtists(maxLength int) (string, int) {
 	artistsNames := ""
 	maxArtists := 0
-	for i, v := range sm.artists {
+	for i, v := range mm.artists {
 		if utf8.RuneCountInString(artistsNames+v.Name+", ") > maxLength-1 {
 			if maxArtists == 0 {
-				log.Fatal(fmt.Sprintf("failed to concrete artists names : %s", sm.artists))
+				log.Fatal(fmt.Sprintf("failed to concrete artists names : %s", mm.artists))
 			}
 			break
 		}
@@ -179,21 +179,21 @@ func (sm songMeta) concreteArtists(maxLength int) (string, int) {
 	}
 }
 
-func (sm *songMeta) makeTweetString(t *tweet) {
+func (mm *musicMeta) makeTweetString(t *tweet) {
 	stringMaxLength := t.maxLength - t.urlLength
-	if sm.title == "" || sm.albumName == "" {
+	if mm.title == "" || mm.albumName == "" {
 		log.Fatalf("meta data is not corrected")
 	}
-	maxLength := stringMaxLength - utf8.RuneCountInString(fmt.Sprintf("おすすめの曲… %s by ", sm.title))
+	maxLength := stringMaxLength - utf8.RuneCountInString(fmt.Sprintf("おすすめの曲… %s by ", mm.title))
 	artistsName := ""
-	if sm.isArtistsGroup {
-		artistsName, _ = sm.concreteArtists(maxLength)
+	if mm.isArtistsGroup {
+		artistsName, _ = mm.concreteArtists(maxLength)
 	} else {
-		artistsName = sm.artists[0].Name
+		artistsName = mm.artists[0].Name
 	}
-	content := "おすすめの曲… " + sm.title + " by " + artistsName + " "
+	content := "おすすめの曲… " + mm.title + " by " + artistsName + " "
 	t.textContent = content
-	t.url = sm.url
+	t.url = mm.url
 }
 func (t *tweet) makeTweetIntent() string {
 	intentPrefix := "https://twitter.com/intent/tweet"
