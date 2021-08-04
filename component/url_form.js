@@ -7,7 +7,7 @@ import Link from "next/link";
 export const UrlForm = (props) => {
   const [isUrlShow, setIsUrlShow] = useState(false)
   const [inputUrl, setInputUrl] = useState("")
-  const [songMeta, setSongMeta] = useState(
+  const [musicMeta, setMusicMeta] = useState(
     {
       "text_content": "",
       "title": "",
@@ -24,7 +24,7 @@ export const UrlForm = (props) => {
     let tmpIsUrlShow = false;
     if (spotifyUrlPattern.test(props.target.value)) {
       getSpotifyApi(props).then()
-      if (songMeta.title.length !== 0) {
+      if (musicMeta.title.length !== 0) {
         tmpIsUrlShow = true;
       }
       setIsUrlShow(tmpIsUrlShow)
@@ -32,15 +32,15 @@ export const UrlForm = (props) => {
   }
 
   async function getSpotifyApi(props) {
-    const baseUrl = "/api/song";
+    const baseUrl = "/api/music";
     const queryParams = new URLSearchParams({
       "url": inputUrl,
       "isJson": true
     })
     const response = await fetch(`${baseUrl}?${queryParams}`, {method: "GET"})
     const requestRes = await response.json()
-    setSongMeta(requestRes)
-    console.log(songMeta)
+    setMusicMeta(requestRes)
+    console.log(musicMeta)
   }
 
   function getSpotifyApiThrottle(props) {
@@ -49,8 +49,8 @@ export const UrlForm = (props) => {
 
   return (
     <div>
-      <form action={songMeta.title.length === 0 ? "/" : songMeta.tweet_intent_url} method={"get"}
-            onSubmit={songMeta.title.length === 0 ? (e) => e.preventDefault() : null}>
+      <form action={musicMeta.title.length === 0 ? "/" : musicMeta.tweet_intent_url} method={"get"}
+            onSubmit={musicMeta.title.length === 0 ? (e) => e.preventDefault() : null}>
         <div className="field">
           <label className="label has-text-centered">{props.service + " Share Link"}</label>
           <div className="control">
@@ -64,11 +64,11 @@ export const UrlForm = (props) => {
         <div id={"urlShow"} className={"" + isUrlShow ? "" : " is-hidden"}
              style={{display: isUrlShow ? "block" : "none"}}>
           <div id={"share links"} className="columns block">
-            <div id={'SongName'} className="column is-block is-text is-center">
-              曲名:{songMeta.title}
+            <div id={'MusicName'} className="column is-block is-text is-center">
+              曲名:{musicMeta.title}
             </div>
             <div id="shareLink" className="column is-block">
-              <Link href={songMeta.tweet_intent_url}>
+              <Link href={musicMeta.tweet_intent_url}>
                 <a>
                   <button className="button is-link has-text-centered">この曲をTwitterで共有
                     <FontAwesomeIcon icon={faTwitter}/>
