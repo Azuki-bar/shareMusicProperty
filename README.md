@@ -1,1 +1,3 @@
-# shareSongProperty
+# shareMusicProperty
+
+https://music.azukibar.dev
