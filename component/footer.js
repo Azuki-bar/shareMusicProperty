@@ -1,5 +1,5 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faGithub, faGithubAlt, faGithubSquare} from "@fortawesome/free-brands-svg-icons";
+import {faGithub,} from "@fortawesome/free-brands-svg-icons";
 import Link from 'next/link'
 
 export const Footer = (props) => {
@@ -7,17 +7,21 @@ export const Footer = (props) => {
     <footer className="footer">
       <div className="content has-text-centered">
         <div className="github block">
-          <a target="_blank" href="https://github.azukibar.dev">
-            <button className="button">
-              <FontAwesomeIcon icon={faGithub}/>
-              GitHub
-            </button>
-          </a>
+          <Link href={"https://github.azukibar.dev"}>
+            <a target="_blank">
+              <button className="button">
+                <FontAwesomeIcon icon={faGithub}/>
+                GitHub
+              </button>
+            </a>
+          </Link>
         </div>
         <div className="bulma_icon block">
-          <a target="_blank" href="https://bulma.io">
-            <img src="https://bulma.io/images/made-with-bulma.png" alt="Made with Bulma" width="128" height="24"/>
-          </a>
+          <Link href="https://bulma.io">
+            <a target="_blank">
+              <img src="https://bulma.io/images/made-with-bulma.png" alt="Made with Bulma" width="128" height="24"/>
+            </a>
+          </Link>
         </div>
       </div>
     </footer>
