@@ -10,7 +10,9 @@ export const PageDesign = (props) => {
       <NavBar/>
       <div className="columns">
         <div className="column">
-          {props.children}
+          <main>
+            {props.children}
+          </main>
         </div>
         <div className="column">
           hoge
