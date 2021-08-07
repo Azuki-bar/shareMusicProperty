@@ -8,16 +8,11 @@ export const PageDesign = (props) => {
     <div>
       <HeadTag title={props.title}/>
       <NavBar/>
-      <div className="columns">
-        <div className="column">
-          <main>
-            {props.children}
-          </main>
+      <main>
+        <div className="container">
+          {props.children}
         </div>
-        <div className="column">
-          hoge
-        </div>
-      </div>
+      </main>
       <Footer/>
     </div>
   )
