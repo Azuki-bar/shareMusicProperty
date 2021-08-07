@@ -1,6 +1,6 @@
 import {useState} from "react"
 import throttle from 'lodash/throttle'
-import {Showmusicmeta} from "./showmusicmeta";
+import {ShowMusicMeta} from "./showMusicMeta";
 
 export const initMusicMeta = {
   "text_content": "",
@@ -87,7 +87,7 @@ export const UrlForm = (props) => {
       <div className="field">
         <div id={"urlShow"} className={"" + isUrlShow ? "" : " is-hidden"}
              style={{display: isUrlShow ? "block" : "none"}}>
-          <Showmusicmeta musicmeta={musicMeta}/>
+          <ShowMusicMeta musicmeta={musicMeta}/>
         </div>
       </div>
     </div>

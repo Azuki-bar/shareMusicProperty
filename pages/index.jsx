@@ -1,5 +1,5 @@
 import React from "react";
-import {UrlForm} from "../component/url_form";
+import {UrlForm} from "../component/urlForm";
 import {PageDesign} from "../component/pageDesign";
 
 const HomePage = () => {
