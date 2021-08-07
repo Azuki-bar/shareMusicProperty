@@ -146,7 +146,8 @@ func (mm *musicMeta) getMusicMeta(r *http.Request) error {
 	}
 	client := spotify.Authenticator{}.NewClient(token)
 	mm.parseRequestUri(r)
-	track, err := client.GetTrack(mm.id)
+	c := "JP"
+	track, err := client.GetTrackOpt(mm.id, &(spotify.Options{Country: &c}))
 	if err != nil || track == nil {
 		return err
 	}
@@ -191,7 +192,7 @@ func (mm *musicMeta) makeTweetString(t *tweet) {
 	} else {
 		artistsName = mm.artists[0].Name
 	}
-	content := "おすすめの曲… " + mm.title + " by " + artistsName + " "
+	content := "おすすめの曲… " + mm.title + " by " + artistsName
 	t.textContent = content
 	t.url = mm.url
 }
