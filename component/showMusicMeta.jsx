@@ -2,7 +2,7 @@ import React from "react"
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTwitter} from "@fortawesome/free-brands-svg-icons";
 
-export const Showmusicmeta = (props) => {
+export const ShowMusicMeta = (props) => {
   const musicMeta = props.musicmeta;
   const Artist = (props) => {
     return (
