@@ -1,46 +1,65 @@
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {useState} from "react"
-import {faTwitter} from "@fortawesome/free-brands-svg-icons";
 import throttle from 'lodash/throttle'
-import Link from "next/link";
+import {Showmusicmeta} from "./showmusicmeta";
+
+export const initMusicMeta = {
+  "text_content": "",
+  "title": "",
+  "album_name": "",
+  "artists": [],
+  "url": "",
+  "tweet_intent_url": ""
+}
 
 export const UrlForm = (props) => {
+
   const [isUrlShow, setIsUrlShow] = useState(false)
   const [inputUrl, setInputUrl] = useState("")
-  const [musicMeta, setMusicMeta] = useState(
-    {
-      "text_content": "",
-      "title": "",
-      "album_name": "",
-      "artists": [],
-      "url": "",
-      "tweet_intent_url": ""
-    }
-  )
+  const [musicMeta, setMusicMeta] = useState(initMusicMeta)
 
-  function getApiReq(props) {
-    const spotifyUrlPattern = new RegExp(/https:\/\/open.spotify.com\/track\/.+/)
-    setInputUrl(props.target.value)
+  function getApiReq(event) {
+    event.preventDefault();
+    const spotifyUrlPattern = new RegExp(/^https:\/\/open\.spotify\.com\/track\/([0-9A-Za-z]{22})(\?.+|)/)
+    // https://www.wikidata.org/wiki/Property:P2207
+
+    // setInputUrl(event.target.value)
     let tmpIsUrlShow = false;
-    if (spotifyUrlPattern.test(props.target.value)) {
-      getSpotifyApi(props).then()
-      if (musicMeta.title.length !== 0) {
-        tmpIsUrlShow = true;
-      }
-      setIsUrlShow(tmpIsUrlShow)
+    if (spotifyUrlPattern.test(inputUrl)) {
+      console.log("TEST passed")
+      getSpotifyApi(event)
+        .then(() => {
+          if (musicMeta.title.length !== 0) {
+            tmpIsUrlShow = true;
+          }
+        })
     }
+    if (!tmpIsUrlShow) {
+      setMusicMeta(initMusicMeta)
+    }
+    setIsUrlShow(tmpIsUrlShow)
   }
 
-  async function getSpotifyApi(props) {
+  async function getSpotifyApi(event) {
     const baseUrl = "/api/music";
     const queryParams = new URLSearchParams({
       "url": inputUrl,
-      "isJson": true
+      "isJson": "true"
     })
-    const response = await fetch(`${baseUrl}?${queryParams}`, {method: "GET"})
-    const requestRes = await response.json()
-    setMusicMeta(requestRes)
-    console.log(musicMeta)
+    if (inputUrl === "") {
+    } else {
+      const response = fetch(`${baseUrl}?${queryParams}`, {method: "GET"})
+        .then(response => response.json())
+        .then(jsonData => {
+            console.log(jsonData);
+            setMusicMeta(jsonData)
+            setIsUrlShow(true)
+          },
+          (err) => {
+            console.log("ERR", err);
+            setMusicMeta(initMusicMeta);
+          }
+        )
+    }
   }
 
   function getSpotifyApiThrottle(props) {
@@ -49,34 +68,26 @@ export const UrlForm = (props) => {
 
   return (
     <div>
-      <form action={musicMeta.title.length === 0 ? "/" : musicMeta.tweet_intent_url} method={"get"}
-            onSubmit={musicMeta.title.length === 0 ? (e) => e.preventDefault() : null}>
+      < form onSubmit={getApiReq}>
+        {/*<form action={musicMeta.title.length === 0 ? "/" : musicMeta.tweet_intent_url} method={"get"}*/}
+        {/*      onSubmit={getApiReq}>*/}
         <div className="field">
           <label className="label has-text-centered">{props.service + " Share Link"}</label>
-          <div className="control">
-            <input value={inputUrl} className="input" type="text" name={"url"}
-                   onInput={getApiReq}
-                   placeholder={"please input " + props.service + " URL"}/>
-          </div>
+          {/*<div className="control">*/}
+          <input value={inputUrl} className="input" type="text" name={"url"}
+            // onInput={getApiReq}
+                 onInput={(e) => setInputUrl(e.target.value)}
+                 placeholder={"please input " + props.service + " URL"}/>
+          {/*</div>*/}
+          <button className="button" onClick={getApiReq} type="submit">
+            Create Link
+          </button>
         </div>
       </form>
       <div className="field">
         <div id={"urlShow"} className={"" + isUrlShow ? "" : " is-hidden"}
              style={{display: isUrlShow ? "block" : "none"}}>
-          <div id={"share links"} className="columns block">
-            <div id={'MusicName'} className="column is-block is-text is-center">
-              曲名:{musicMeta.title}
-            </div>
-            <div id="shareLink" className="column is-block">
-              <Link href={musicMeta.tweet_intent_url}>
-                <a>
-                  <button className="button is-link has-text-centered">この曲をTwitterで共有
-                    <FontAwesomeIcon icon={faTwitter}/>
-                  </button>
-                </a>
-              </Link>
-            </div>
-          </div>
+          <Showmusicmeta musicmeta={musicMeta}/>
         </div>
       </div>
     </div>
