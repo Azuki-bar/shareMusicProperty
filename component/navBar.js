@@ -6,11 +6,6 @@ import {faTwitter} from "@fortawesome/free-brands-svg-icons";
 export const NavBar = (props) => {
   const [isBurgerOpen, setIsBurgerOpen] = useState(false)
 
-  function toggleBurger() {
-    setIsBurgerOpen(prevState => !prevState)
-  }
-
-
   return (
     <div className="NavBar">
       <nav className="navbar" role="navigation" aria-label="main navigation">
@@ -21,7 +16,7 @@ export const NavBar = (props) => {
 
           <a role="button" className={"navbar-burger" + (isBurgerOpen ? " is-active" : "")}
              aria-label="menu" aria-expanded="false"
-             data-target="navBarBurger" onClick={toggleBurger}>
+             data-target="navBarBurger" onClick={() => setIsBurgerOpen(prevState => !prevState)}>
             <span aria-hidden="true"/>
             <span aria-hidden="true"/>
             <span aria-hidden="true"/>
