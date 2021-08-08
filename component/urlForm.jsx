@@ -13,9 +13,18 @@ export const initMusicMeta = {
 
 export const UrlForm = (props) => {
 
+  const ButtonStatus = {
+    "SUCCESS": "success",
+    "LOADING": "loading",
+    "FAILED": "failed",
+    "CHECK_URL": "CheckUrl",
+    "INIT_STATUS": ""
+  }
+
   const [isUrlShow, setIsUrlShow] = useState(false)
   const [inputUrl, setInputUrl] = useState("")
   const [musicMeta, setMusicMeta] = useState(initMusicMeta)
+  const [sendButtonStatus, setSendButtonStatus] = useState(ButtonStatus.INIT_STATUS)
 
   function getApiReq(event) {
     event.preventDefault();
@@ -32,6 +41,11 @@ export const UrlForm = (props) => {
             tmpIsUrlShow = true;
           }
         })
+    } else {
+      setSendButtonStatus(ButtonStatus.CHECK_URL)
+      setTimeout(() => {
+        setSendButtonStatus(ButtonStatus.INIT_STATUS)
+      }, 1500)
     }
     if (!tmpIsUrlShow) {
       setMusicMeta(initMusicMeta)
@@ -40,6 +54,7 @@ export const UrlForm = (props) => {
   }
 
   async function getSpotifyApi(event) {
+    setSendButtonStatus(ButtonStatus.LOADING)
     const baseUrl = "/api/music";
     const queryParams = new URLSearchParams({
       "url": inputUrl,
@@ -53,10 +68,18 @@ export const UrlForm = (props) => {
             console.log(jsonData);
             setMusicMeta(jsonData)
             setIsUrlShow(true)
+            setSendButtonStatus(ButtonStatus.SUCCESS)
           },
           (err) => {
             console.log("ERR", err);
             setMusicMeta(initMusicMeta);
+            setSendButtonStatus(ButtonStatus.FAILED)
+          }
+        ).then(
+          () => {
+            setTimeout(() => {
+              setSendButtonStatus(ButtonStatus.INIT_STATUS)
+            }, 1500)
           }
         )
     }
@@ -66,21 +89,48 @@ export const UrlForm = (props) => {
     throttle(getSpotifyApi, 100)
   }
 
+  function changeSendButton() {
+    switch (sendButtonStatus) {
+      case ButtonStatus.LOADING:
+        return " is-loading"
+      case ButtonStatus.SUCCESS:
+        return " is-success"
+      case ButtonStatus.FAILED:
+      case ButtonStatus.CHECK_URL:
+        return " is-danger"
+      case ButtonStatus.INIT_STATUS:
+      default:
+        return ""
+    }
+  }
+
+  function sendButtonMessage() {
+    switch (sendButtonStatus) {
+      case ButtonStatus.LOADING:
+        return "Creating..."
+      case ButtonStatus.SUCCESS:
+        return "Success!"
+      case ButtonStatus.FAILED:
+        return "Failed......"
+      case ButtonStatus.CHECK_URL:
+        return "Please Check URL"
+      case ButtonStatus.INIT_STATUS:
+      default:
+        return "Create Link"
+    }
+
+  }
+
   return (
     <div>
       < form onSubmit={getApiReq}>
-        {/*<form action={musicMeta.title.length === 0 ? "/" : musicMeta.tweet_intent_url} method={"get"}*/}
-        {/*      onSubmit={getApiReq}>*/}
         <div className="field">
           <label className="label has-text-centered">{props.service + " Share Link"}</label>
-          {/*<div className="control">*/}
           <input value={inputUrl} className="input" type="text" name={"url"}
-            // onInput={getApiReq}
                  onInput={(e) => setInputUrl(e.target.value)}
                  placeholder={"please input " + props.service + " URL"}/>
-          {/*</div>*/}
-          <button className="button" onClick={getApiReq} type="submit">
-            Create Link
+          <button className={"button" + changeSendButton()} onClick={getApiReq} type="submit">
+            {sendButtonMessage()}
           </button>
         </div>
       </form>
