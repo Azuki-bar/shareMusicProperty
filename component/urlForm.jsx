@@ -125,13 +125,30 @@ export const UrlForm = (props) => {
     <div>
       < form onSubmit={getApiReq}>
         <div className="field">
-          <label className="label has-text-centered">{props.service + " Share Link"}</label>
-          <input value={inputUrl} className="input" type="text" name={"url"}
-                 onInput={(e) => setInputUrl(e.target.value)}
-                 placeholder={"please input " + props.service + " URL"}/>
-          <button className={"button" + changeSendButton()} onClick={getApiReq} type="submit">
-            {sendButtonMessage()}
-          </button>
+          <div className="block">
+            <label className="label has-text-centered">{props.service + " Share Link"}</label>
+            <input value={inputUrl} className="input" type="text" name={"url"}
+                   onInput={(e) => setInputUrl(e.target.value)}
+                   placeholder={"please input " + props.service + " URL"}/>
+          </div>
+
+          <div className="block">
+            <div className="buttons is-centered">
+
+              <button className={"button" + changeSendButton()} onClick={getApiReq} type="submit">
+                {sendButtonMessage()}
+              </button>
+
+              <button className="button is-danger is-small is-outlined"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setInputUrl("")
+                      }}
+              >
+                reset Form
+              </button>
+            </div>
+          </div>
         </div>
       </form>
       <div className="field">
