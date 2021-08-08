@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export const Footer = (props) => {
   return (
-    <footer className="footer" style={{position: "absolute", width: "100%", bottom: 0, overflow: "hidden"}}>
+    <footer className="footer">
       <div className="content has-text-centered">
         <div className="github block">
           <Link href={"https://github.azukibar.dev"}>
