@@ -122,7 +122,7 @@ export const UrlForm = (props) => {
   }
 
   return (
-    <div>
+    <div className="box">
       < form onSubmit={getApiReq}>
         <div className="field">
           <div className="block">
