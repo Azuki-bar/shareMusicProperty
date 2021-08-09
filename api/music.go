@@ -12,7 +12,6 @@ import (
 	"net/url"
 	"os"
 	"strings"
-	"unicode/utf8"
 )
 
 type musicMeta struct {
@@ -50,7 +49,18 @@ func (mmj *musicMetaJson) addStruct(t tweet, mm musicMeta) {
 	}
 	mmj.TweetIntentUrl = t.makeTweetIntent()
 }
-
+func countTwitterCharacters(s string) int {
+	strLen := 0
+	ss := strings.Split(s, "")
+	for _, v := range ss {
+		if len(v) > 1 {
+			strLen += 2
+		} else {
+			strLen += 1
+		}
+	}
+	return strLen
+}
 func getHtmlTemplate() string {
 	text := `<!DOCTYPE html>
 <html lang="jp">
@@ -70,7 +80,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	t := tweet{
 		textContent: "",
 		url:         nil,
-		maxLength:   140,
+		maxLength:   280,
 		urlLength:   23,
 	}
 	mm := musicMeta{
@@ -164,7 +174,7 @@ func (mm musicMeta) concreteArtists(maxLength int) (string, int) {
 	artistsNames := ""
 	maxArtists := 0
 	for i, v := range mm.artists {
-		if utf8.RuneCountInString(artistsNames+v.Name+", ") > maxLength-1 {
+		if countTwitterCharacters(artistsNames+v.Name+", "+" など") > maxLength-1 {
 			if maxArtists == 0 {
 				log.Fatal(fmt.Sprintf("failed to concrete artists names : %s", mm.artists))
 			}
@@ -173,11 +183,7 @@ func (mm musicMeta) concreteArtists(maxLength int) (string, int) {
 		artistsNames = artistsNames + v.Name + ", "
 		maxArtists = i + 1
 	}
-	if maxArtists > 1 {
-		return strings.TrimSuffix(artistsNames, ", "), maxArtists
-	} else {
-		return artistsNames, maxArtists
-	}
+	return strings.TrimSuffix(artistsNames, ", "), maxArtists
 }
 
 func (mm *musicMeta) makeTweetString(t *tweet) {
@@ -185,14 +191,13 @@ func (mm *musicMeta) makeTweetString(t *tweet) {
 	if mm.title == "" || mm.albumName == "" {
 		log.Fatalf("meta data is not corrected")
 	}
-	maxLength := stringMaxLength - utf8.RuneCountInString(fmt.Sprintf("おすすめの曲… %s by ", mm.title))
-	artistsName := ""
-	if mm.isArtistsGroup {
-		artistsName, _ = mm.concreteArtists(maxLength)
-	} else {
-		artistsName = mm.artists[0].Name
-	}
+	maxLength := stringMaxLength - countTwitterCharacters(fmt.Sprintf("おすすめの曲… %s by ", mm.title))
+	artistsName, n := mm.concreteArtists(maxLength)
+	isOverFlowArtists := !(len(mm.artists) == n)
 	content := "おすすめの曲… " + mm.title + " by " + artistsName
+	if isOverFlowArtists {
+		content += " など"
+	}
 	t.textContent = content
 	t.url = mm.url
 }
