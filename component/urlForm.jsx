@@ -122,7 +122,7 @@ export const UrlForm = (props) => {
   }
 
   return (
-    <div className="box">
+    <div>
       < form onSubmit={getApiReq}>
         <div className="field">
           <div className="block">
@@ -142,7 +142,8 @@ export const UrlForm = (props) => {
               <button className="button is-danger is-small is-outlined"
                       onClick={(e) => {
                         e.preventDefault();
-                        setInputUrl("")
+                        setInputUrl("");
+                        setIsUrlShow(false)
                       }}
               >
                 reset Form
