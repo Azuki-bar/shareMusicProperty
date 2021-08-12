@@ -1,6 +1,7 @@
 import {useState} from "react"
 import throttle from 'lodash/throttle'
 import {ShowMusicMeta} from "./showMusicMeta";
+import {defaultTitle} from "../pages";
 
 export const initMusicMeta = {
   "text_content": "",
@@ -76,6 +77,7 @@ export const UrlForm = (props) => {
             console.log("ERR", err);
             setMusicMeta(initMusicMeta);
             setSendButtonStatus(ButtonStatus.FAILED)
+            setDocumentTitle(defaultTitle)
           }
         ).then(
           () => {
