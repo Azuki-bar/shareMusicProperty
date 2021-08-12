@@ -27,6 +27,7 @@ export const UrlForm = (props) => {
   const [musicMeta, setMusicMeta] = useState(initMusicMeta)
   const [sendButtonStatus, setSendButtonStatus] = useState(ButtonStatus.INIT_STATUS)
   const setDocumentTitle = props.titleSetter
+  const resetButtonValue = "reset Form"
 
   function getApiReq(event) {
     event.preventDefault();
@@ -122,7 +123,13 @@ export const UrlForm = (props) => {
       default:
         return "Create Link"
     }
+  }
 
+  function resetFormButtonOnClick(e) {
+    e.preventDefault();
+    setInputUrl("");
+    setIsUrlShow(false);
+    setDocumentTitle(defaultTitle)
   }
 
   return (
@@ -143,15 +150,8 @@ export const UrlForm = (props) => {
                 {sendButtonMessage()}
               </button>
 
-              <button className="button is-danger is-small is-outlined"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setInputUrl("");
-                        setIsUrlShow(false);
-                        setDocumentTitle(defaultTitle)
-                      }}
-              >
-                reset Form
+              <button className="button is-danger is-small is-outlined" onClick={resetFormButtonOnClick}>
+                {resetButtonValue}
               </button>
             </div>
           </div>
