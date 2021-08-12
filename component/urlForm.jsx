@@ -1,6 +1,7 @@
 import {useState} from "react"
 import throttle from 'lodash/throttle'
 import {ShowMusicMeta} from "./showMusicMeta";
+import {defaultTitle} from "../pages";
 
 export const initMusicMeta = {
   "text_content": "",
@@ -25,6 +26,7 @@ export const UrlForm = (props) => {
   const [inputUrl, setInputUrl] = useState("")
   const [musicMeta, setMusicMeta] = useState(initMusicMeta)
   const [sendButtonStatus, setSendButtonStatus] = useState(ButtonStatus.INIT_STATUS)
+  const setDocumentTitle = props.titleSetter
 
   function getApiReq(event) {
     event.preventDefault();
@@ -69,11 +71,13 @@ export const UrlForm = (props) => {
             setMusicMeta(jsonData)
             setIsUrlShow(true)
             setSendButtonStatus(ButtonStatus.SUCCESS)
+            setDocumentTitle(jsonData.title + " をTwitterで共有")
           },
           (err) => {
             console.log("ERR", err);
             setMusicMeta(initMusicMeta);
             setSendButtonStatus(ButtonStatus.FAILED)
+            setDocumentTitle(defaultTitle)
           }
         ).then(
           () => {
@@ -143,7 +147,8 @@ export const UrlForm = (props) => {
                       onClick={(e) => {
                         e.preventDefault();
                         setInputUrl("");
-                        setIsUrlShow(false)
+                        setIsUrlShow(false);
+                        setDocumentTitle(defaultTitle)
                       }}
               >
                 reset Form
