@@ -25,6 +25,7 @@ export const UrlForm = (props) => {
   const [inputUrl, setInputUrl] = useState("")
   const [musicMeta, setMusicMeta] = useState(initMusicMeta)
   const [sendButtonStatus, setSendButtonStatus] = useState(ButtonStatus.INIT_STATUS)
+  const setDocumentTitle = props.titleSetter
 
   function getApiReq(event) {
     event.preventDefault();
@@ -69,6 +70,7 @@ export const UrlForm = (props) => {
             setMusicMeta(jsonData)
             setIsUrlShow(true)
             setSendButtonStatus(ButtonStatus.SUCCESS)
+            setDocumentTitle(jsonData.title + " をTwitterで共有")
           },
           (err) => {
             console.log("ERR", err);

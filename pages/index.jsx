@@ -1,13 +1,14 @@
-import React from "react";
+import React, {useState} from "react";
 import {UrlForm} from "../component/urlForm";
 import {PageDesign} from "../component/pageDesign";
 
 const HomePage = () => {
+  const [pageTitle, setPageTitle] = useState("聞いている曲を共有")
   return (
     <div>
-      <PageDesign title={"曲名取得"}>
+      <PageDesign title={pageTitle}>
         <div className={"content"}>
-          <UrlForm service="Spotify"/>
+          <UrlForm service="Spotify" titleSetter={setPageTitle}/>
         </div>
       </PageDesign>
     </div>
