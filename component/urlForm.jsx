@@ -147,7 +147,8 @@ export const UrlForm = (props) => {
                       onClick={(e) => {
                         e.preventDefault();
                         setInputUrl("");
-                        setIsUrlShow(false)
+                        setIsUrlShow(false);
+                        setDocumentTitle(defaultTitle)
                       }}
               >
                 reset Form
