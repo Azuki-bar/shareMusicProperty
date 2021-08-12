@@ -129,7 +129,7 @@ export const UrlForm = (props) => {
             <label className="label has-text-centered">{props.service + " Share Link"}</label>
             <input value={inputUrl} className="input" type="text" name={"url"}
                    onInput={(e) => setInputUrl(e.target.value)}
-                   placeholder={"please input " + props.service + " URL"}/>
+                   placeholder={"please input " + props.service + " URL"} autoComplete="off"/>
           </div>
 
           <div className="block">
