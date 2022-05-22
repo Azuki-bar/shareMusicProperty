@@ -1468,10 +1468,10 @@ watchpack@^2.3.1:
     glob-to-regexp "^0.4.1"
     graceful-fs "^4.1.2"
 
-webpack-obfuscator@3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/webpack-obfuscator/-/webpack-obfuscator-3.4.0.tgz#f0346a955304aa3e6bfd2857874bf41f220bbd10"
-  integrity sha512-Cd8jlJzaU/AYAD9nmNFe9HmAk1o/14hilpXVM/Uh0JvmYQcBODx9l5jvG+QYvwLSRHG6FkIfFdL8Op9+qRlD3w==
+webpack-obfuscator@3.5.1:
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/webpack-obfuscator/-/webpack-obfuscator-3.5.1.tgz#8ad73745f2d7c8e476e8f700622d251fdeec74c2"
+  integrity sha512-vztsD8oNdkX9FY/K4GTuylNWLGlc0n07vt7sCa+SlixKe/8iGejlxb/ZiKARmaZ2c8AbiBZcB/5hYqeNPydVZA==
   dependencies:
     loader-utils "^2.0.0"
     multi-stage-sourcemap "^0.3.1"
