@@ -1,6 +1,6 @@
 module api
 
-go 1.16
+go 1.19
 
 require (
 	github.com/zmb3/spotify v1.3.0
