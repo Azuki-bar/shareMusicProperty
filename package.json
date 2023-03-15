@@ -22,7 +22,7 @@
         "lint": "next lint"
     },
     "devDependencies": {
-        "webpack": "5.74.0",
+        "webpack": "5.76.0",
         "webpack-obfuscator": "3.5.1"
     }
 }
